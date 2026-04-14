@@ -63,6 +63,7 @@ export default function Home() {
 
   return (
     <div className="bg-gray-100 min-h-screen p-6">
+
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="w-full lg:w-3/4">
           <input
@@ -86,7 +87,9 @@ export default function Home() {
             </div>
 
             <div className="flex gap-2 flex-wrap justify-end">
-              <button  onClick={() => setCategory("")}
+              <button  onClick={() => {setCategory("");
+                                         setType("");
+              }}
                 className="px-4 py-1 rounded-full bg-gray-200"  >
                 All
               </button>
@@ -118,8 +121,7 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-10">
             {products.length === 0 ? (
               <p>No products found</p>
-            ) : (
-              products.map((p) => <ProductCard key={p.id} product={p} />)
+            ) : ( products.map((p) => < ProductCard key={p.id} product={p} />)
             )}
           </div>
 
@@ -129,7 +131,7 @@ export default function Home() {
             {combos.length === 0 ? (
               <p>No combos found</p>
             ) : (
-              combos.map((c) => <ComboCard key={c.id} combo={c} />)
+              combos.map((c) => < ComboCard key={c.id} combo={c} />)
             )}
           </div>
         </div>

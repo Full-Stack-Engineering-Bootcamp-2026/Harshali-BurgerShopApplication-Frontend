@@ -10,11 +10,19 @@ export default function Checkout() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
+  const isValidEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   const placeOrder = async () => {
     try {
-      const items = cart.map(item => ({
+      if (!isValidEmail(email)) {
+        setError("Invalid email format");
+        return;
+      }
+
+      const items = cart.map((item) => ({
         productId: item.id,
-        quantity: item.quantity
+        quantity: item.quantity,
       }));
 
       const res = await API.post("/checkout", { name, email, items });
@@ -22,9 +30,7 @@ export default function Checkout() {
       setResult(res.data);
       clearCart();
       setError("");
-    } 
-    catch (err) {
-     
+    } catch (err) {
       setError("Failed to place order");
     }
   };
@@ -35,30 +41,36 @@ export default function Checkout() {
 
       <input
         placeholder="Name"
-        onChange={e => setName(e.target.value)}
-        className="border p-2 block mb-3" />
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="border p-2 block mb-3 " />
 
       <input
         placeholder="Email"
-        onChange={e => setEmail(e.target.value)}
-        className="border p-2 block mb-3" />
+        value={email}
+        onChange={(e) => {
+          setEmail(e.target.value);
+          if (e.target.value && !isValidEmail(e.target.value)) {
+            setError("Invalid email");
+          } else {
+            setError("");
+          }
+        }}
+        className="border p-2 block mb-3 " />
+
+      {error && <p className="text-red-500 mb-3">{error}</p>}
 
       <button
         onClick={placeOrder}
-        className="bg-green-500 text-white px-4 py-2 rounded" >
+        className="bg-green-500 text-white px-4 py-2 rounded ">
         Place Order
       </button>
 
-      {error && (
-        <p className="text-red-500 mt-3">{error}</p>
-      )}
-
       {result && (
         <div className="mt-6 p-4 bg-white rounded-xl shadow">
+          <h3 className="text-lg font-semibold mb-3">Bill Summary</h3>
 
-          <h3 className="text-lg font-semibold mb-2">Bill Summary</h3>
-
-          <p className="text-gray-500 ">
+          <p className="text-gray-500">
             Actual Bill: {result.actual}
           </p>
 
@@ -67,10 +79,10 @@ export default function Checkout() {
           </p>
 
           <p className="text-green-700 mb-3">
-            Congratulations You Saved {result.actual - result.optimized}
+            You Saved {result.actual - result.optimized}
           </p>
 
-          <hr  />
+          <hr className="my-3" />
 
           <h4 className="font-semibold mb-2">Applied Combos</h4>
 
@@ -81,7 +93,7 @@ export default function Checkout() {
                 className="flex justify-between mb-1"
               >
                 <span>
-                  {combo.name} {combo.quantity}
+                  {combo.name} x {combo.quantity}
                 </span>
                 <span>
                   {combo.price * combo.quantity}
@@ -92,8 +104,30 @@ export default function Checkout() {
             <p className="text-gray-500">No combos applied</p>
           )}
 
+          <hr className="my-3" />
+
+          <h4 className="font-semibold mb-2">Products</h4>
+
+          {result.remainingItems && result.remainingItems.length > 0 ? (
+            result.remainingItems.map((item) => (
+              <div
+                key={item.productId}
+                className="flex justify-between mb-1"
+              >
+                <span>
+                  {item.name} x {item.quantity}
+                </span>
+                <span>
+                  {item.price * item.quantity}
+                </span>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500">No individual items</p>
+          )}
         </div>
       )}
     </div>
   );
 }
+
